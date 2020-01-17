@@ -1,0 +1,26 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name localhost;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl ;
+    listen [::]:443 ssl ;
+    ssl on;
+
+    ssl_certificate /var/cert/localhost.cert;
+    ssl_certificate_key /var/cert/localhost.key;
+    
+    root /var/www/localhost/wordpress;
+    index index.html index.htm index.php ;
+
+    server_name localhost;
+
+    location ~ \.php$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+    }
+
+}
