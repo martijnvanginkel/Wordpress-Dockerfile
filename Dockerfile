@@ -3,7 +3,7 @@ FROM debian:buster
 RUN apt-get update && apt-get upgrade
 RUN apt-get -y install nginx
 RUN apt-get -y install mariadb-server
-RUN apt-get -y install php7.3-fpm php-common php-mysql php-mbstring php-cli
+RUN apt-get -y install php7.3 php-mysql php-fpm php-cli php-mbstring php-curl php-gd php-intl php-soap php-xml php-xmlrpc php-zip
 
 RUN apt-get -y install wget
 RUN apt-get -y install vim
@@ -11,7 +11,6 @@ RUN apt-get -y install vim
 COPY ./srcs/start.sh /root
 
 # mysql
-RUN apt-get update && apt-get upgrade
 RUN service mysql start; \ 
     mysql -u root; \
     echo "CREATE DATABASE wordpress" | mysql -u root; \
@@ -28,9 +27,9 @@ RUN chmod -R 755 /var/www/localhost
 COPY ./srcs/localhost /etc/nginx/sites-available
 RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 
-WORKDIR /etc/nginx/sites-available/
+WORKDIR /etc/nginx/sites-enabled/
 
-RUN rm ../sites-enabled/default
+RUN rm default
 
 WORKDIR /var/www/localhost/wordpress
 
@@ -56,6 +55,19 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
     wp theme install https://downloads.wordpress.org/theme/shapely.1.2.8.zip --allow-root && \
     wp theme activate shapely --allow-root
 
-EXPOSE 80 443
+RUN rm /etc/php/7.3/fpm/php.ini
+RUN rm /var/www/localhost/wordpress/wp-config.php
+
+COPY ./srcs/php.ini /etc/php/7.3/fpm/
+COPY ./srcs/wp-config.php /var/www/localhost/wordpress/
+
+RUN chown -R www-data /var/www/localhost/wordpress/wp-content/uploads &&\
+    chmod 777 /var/www/localhost/wordpress/wp-content/upgrade &&\
+    chmod 777 /var/www/localhost/wordpress/wp-content/plugins &&\
+    chmod 777 /var/www/localhost/wordpress/wp-content/themes &&\
+    chmod 777 /var/www/localhost/wordpress
+
+
+EXPOSE 80 443 110
 
 CMD bash /root/start.sh

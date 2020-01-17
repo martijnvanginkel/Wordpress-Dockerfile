@@ -12,6 +12,8 @@ server {
 
     ssl_certificate /var/cert/localhost.cert;
     ssl_certificate_key /var/cert/localhost.key;
+
+    client_max_body_size 10M;
     
     root /var/www/localhost/wordpress;
     index index.html index.htm index.php ;
