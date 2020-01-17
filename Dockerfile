@@ -25,7 +25,6 @@ RUN openssl req -new -x509 -key localhost.key -out localhost.cert -days 3650 -su
 RUN mkdir -p /var/www/localhost
 RUN chmod -R 755 /var/www/localhost
 
-COPY ./srcs/index.html /var/www/localhost
 COPY ./srcs/localhost /etc/nginx/sites-available
 RUN ln -s /etc/nginx/sites-available/localhost /etc/nginx/sites-enabled/
 
@@ -53,7 +52,9 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
     wp core download --allow-root &&\
     wp config create --dbhost=localhost --dbname=wordpress --dbuser=mvan-gin --dbpass=asdf --allow-root &&\
     chmod 644 wp-config.php &&\
-    wp core install --url=localhost --title="wordpress website" --admin_name=mvan-gin --admin_password=asdf --admin_email=mvan-gin@codam.student.nl --allow-root
+    wp core install --url=localhost --title="wordpress website" --admin_name=mvan-gin --admin_password=asdf --admin_email=mvan-gin@codam.student.nl --allow-root &&\
+    wp theme install https://downloads.wordpress.org/theme/shapely.1.2.8.zip --allow-root && \
+    wp theme activate shapely --allow-root
 
 EXPOSE 80 443
 
